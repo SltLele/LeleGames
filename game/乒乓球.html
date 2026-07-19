@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>乒乓</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0a18;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 16px;
+        }
+        .app {
+            background: #16162e;
+            border-radius: 28px;
+            padding: 24px 20px 20px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid #2a2a50;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #48dbfb;
+            text-shadow: 0 0 20px #48dbfb66;
+        }
+        .info {
+            display: flex;
+            gap: 20px;
+            color: #ccc;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .info .p1 {
+            color: #ff6b6b;
+        }
+        .info .p2 {
+            color: #48dbfb;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            aspect-ratio: 5/3.5;
+            background: #0f0f22;
+            border-radius: 16px;
+            border: 2px solid #2a2a50;
+            margin-bottom: 12px;
+            touch-action: none;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 40px;
+            background: #25254a;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            touch-action: manipulation;
+            flex: 1 1 auto;
+            min-width: 70px;
+        }
+        .btn:hover {
+            background: #35356a;
+        }
+        .btn:active {
+            transform: scale(0.94);
+        }
+        .btn-primary {
+            background: #48dbfb;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #7ae5ff;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 16px;
+            color: #666;
+            font-size: 13px;
+            border-top: 1px solid #2a2a50;
+            padding-top: 14px;
+        }
+        @media (max-width: 480px) {
+            .title {
+                font-size: 22px;
+            }
+            .info {
+                font-size: 15px;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="title">🏓 乒乓</div>
+            <div class="info">
+                <span class="p1">👤 <span id="score1">0</span></span>
+                <span class="p2">🤖 <span id="score2">0</span></span>
+            </div>
+        </div>
+        <canvas id="canvas" width="500" height="350"></canvas>
+        <div class="controls">
+            <button class="btn btn-primary" id="btnReset">🔄 重开</button>
+        </div>
+        <div class="footer">⌨️ ↑/↓ 移动挡板 · Space 重启 · R 重开</div>
+    </div>
+    <script>
+        (function() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const score1El = document.getElementById('score1');
+            const score2El = document.getElementById('score2');
+
+            const W = 500,
+                H = 350;
+            canvas.width = W;
+            canvas.height = H;
+
+            const PADDLE_W = 10,
+                PADDLE_H = 60;
+            const BALL_RADIUS = 8;
+
+            let player = { x: 20, y: H / 2 - PADDLE_H / 2, dy: 0, score: 0 };
+            let ai = { x: W - 20 - PADDLE_W, y: H / 2 - PADDLE_H / 2, score: 0 };
+            let ball = { x: W / 2, y: H / 2, dx: 4, dy: 3.5, speed: 4.5 };
+            let particles = [];
+            let gameOver = false;
+
+            function resetPositions() {
+                player.y = H / 2 - PADDLE_H / 2;
+                ai.y = H / 2 - PADDLE_H / 2;
+                ball.x = W / 2;
+                ball.y = H / 2 + (Math.random() - 0.5) * 40;
+                const angle = (Math.random() - 0.5) * 0.8;
+                const dir = Math.random() > 0.5 ? 1 : -1;
+                ball.dx = dir * ball.speed * Math.cos(angle);
+                ball.dy = ball.speed * Math.sin(angle);
+                if (Math.abs(ball.dy) < 1.2) ball.dy = 1.5 * (ball.dy > 0 ? 1 : -1);
+                gameOver = false;
+                particles = [];
+            }
+
+            function resetGame() {
+                player.score = 0;
+                ai.score = 0;
+                ball.speed = 4.5;
+                updateUI();
+                resetPositions();
+            }
+
+            function updateUI() {
+                score1El.textContent = player.score;
+                score2El.textContent = ai.score;
+            }
+
+            function spawnParticles(x, y, color, count = 12) {
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 3 + 1;
+                    particles.push({
+                        x,
+                        y,
+                        dx: Math.cos(angle) * speed,
+                        dy: Math.sin(angle) * speed,
+                        life: 1,
+                        decay: 0.03 + Math.random() * 0.03,
+                        radius: Math.random() * 4 + 2,
+                        color: color
+                    });
+                }
+            }
+
+            function updateParticles() {
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.dx;
+                    p.y += p.dy;
+                    p.life -= p.decay;
+                    if (p.life <= 0) particles.splice(i, 1);
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+
+                // 中线
+                ctx.setLineDash([6, 8]);
+                ctx.strokeStyle = '#2a2a50';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(W / 2, 0);
+                ctx.lineTo(W / 2, H);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 中心圆
+                ctx.strokeStyle = '#2a2a50';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(W / 2, H / 2, 40, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // 玩家
+                ctx.shadowColor = '#ff6b6b';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = '#ff6b6b';
+                ctx.beginPath();
+                ctx.roundRect(player.x, player.y, PADDLE_W, PADDLE_H, 4);
+                ctx.fill();
+
+                // AI
+                ctx.shadowColor = '#48dbfb';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = '#48dbfb';
+                ctx.beginPath();
+                ctx.roundRect(ai.x, ai.y, PADDLE_W, PADDLE_H, 4);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // 球
+                ctx.shadowColor = '#ffffff';
+                ctx.shadowBlur = 30;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // 粒子
+                for (let p of particles) {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            function update() {
+                // AI 移动 (带延迟和缓冲)
+                const center = ai.y + PADDLE_H / 2;
+                const target = ball.y;
+                if (ball.dx > 0) {
+                    if (center < target - 12) ai.y += 3.2;
+                    else if (center > target + 12) ai.y -= 3.2;
+                } else {
+                    if (center < H / 2 - 8) ai.y += 1.8;
+                    else if (center > H / 2 + 8) ai.y -= 1.8;
+                }
+                ai.y = Math.max(0, Math.min(H - PADDLE_H, ai.y));
+
+                // 玩家移动
+                player.y += player.dy;
+                player.y = Math.max(0, Math.min(H - PADDLE_H, player.y));
+
+                // 球移动
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+
+                // 上下墙
+                if (ball.y - BALL_RADIUS < 0) { ball.y = BALL_RADIUS;
+                    ball.dy = -ball.dy;
+                    spawnParticles(ball.x, ball.y, '#aaa', 8); }
+                if (ball.y + BALL_RADIUS > H) { ball.y = H - BALL_RADIUS;
+                    ball.dy = -ball.dy;
+                    spawnParticles(ball.x, ball.y, '#aaa', 8); }
+
+                // 玩家碰撞
+                if (ball.dx < 0 &&
+                    ball.x - BALL_RADIUS < player.x + PADDLE_W &&
+                    ball.x + BALL_RADIUS > player.x &&
+                    ball.y > player.y && ball.y < player.y + PADDLE_H) {
+                    const hitPos = (ball.y - player.y) / PADDLE_H;
+                    const angle = (hitPos - 0.5) * 1.2;
+                    const speed = Math.min(ball.speed + 0.3, 8);
+                    ball.dx = Math.cos(angle) * speed;
+                    ball.dy = Math.sin(angle) * speed;
+                    ball.x = player.x + PADDLE_W + BALL_RADIUS;
+                    spawnParticles(ball.x, ball.y, '#ff6b6b', 15);
+                }
+
+                // AI 碰撞
+                if (ball.dx > 0 &&
+                    ball.x + BALL_RADIUS > ai.x &&
+                    ball.x - BALL_RADIUS < ai.x + PADDLE_W &&
+                    ball.y > ai.y && ball.y < ai.y + PADDLE_H) {
+                    const hitPos = (ball.y - ai.y) / PADDLE_H;
+                    const angle = (hitPos - 0.5) * 1.2;
+                    const speed = Math.min(ball.speed + 0.3, 8);
+                    ball.dx = -Math.cos(angle) * speed;
+                    ball.dy = Math.sin(angle) * speed;
+                    ball.x = ai.x - BALL_RADIUS;
+                    spawnParticles(ball.x, ball.y, '#48dbfb', 15);
+                }
+
+                // 得分
+                if (ball.x - BALL_RADIUS < 0) {
+                    ai.score++;
+                    updateUI();
+                    ball.speed = 4.5;
+                    resetPositions();
+                }
+                if (ball.x + BALL_RADIUS > W) {
+                    player.score++;
+                    updateUI();
+                    ball.speed = 4.5;
+                    resetPositions();
+                }
+
+                updateParticles();
+                draw();
+            }
+
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                this.moveTo(x + r, y);
+                this.lineTo(x + w - r, y);
+                this.quadraticCurveTo(x + w, y, x + w, y + r);
+                this.lineTo(x + w, y + h - r);
+                this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                this.lineTo(x + r, y + h);
+                this.quadraticCurveTo(x, y + h, x, y + h - r);
+                this.lineTo(x, y + r);
+                this.quadraticCurveTo(x, y, x + r, y);
+                this.closePath();
+                return this;
+            };
+
+            // 触摸 / 鼠标
+            function handleMove(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleY = canvas.height / rect.height;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                let y = (clientY - rect.top) * scaleY;
+                y = Math.max(0, Math.min(H - PADDLE_H, y - PADDLE_H / 2));
+                player.y = y;
+            }
+            canvas.addEventListener('mousemove', handleMove);
+            canvas.addEventListener('touchmove', handleMove, { passive: true });
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault();
+                handleMove(e); }, { passive: false });
+
+            document.getElementById('btnReset').addEventListener('click', resetGame);
+
+            // 键盘
+            document.addEventListener('keydown', (e) => {
+                const step = 10;
+                if (e.key === 'ArrowUp') { e.preventDefault();
+                    player.dy = -step; }
+                if (e.key === 'ArrowDown') { e.preventDefault();
+                    player.dy = step; }
+                if (e.key === ' ' || e.key === 'Space') { e.preventDefault();
+                    resetGame(); }
+                if (e.key === 'r' || e.key === 'R') { e.preventDefault();
+                    resetGame(); }
+            });
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault();
+                    player.dy = 0; }
+            });
+
+            function loop() {
+                update();
+                requestAnimationFrame(loop);
+            }
+
+            resetGame();
+            loop();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>数字拼图</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f0f1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 16px;
+        }
+        .app {
+            background: #1a1a2e;
+            border-radius: 28px;
+            padding: 24px 20px 20px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid #2a2a44;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffd200;
+        }
+        .info {
+            display: flex;
+            gap: 16px;
+            color: #ccc;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .info span {
+            background: #252540;
+            padding: 4px 14px;
+            border-radius: 30px;
+        }
+        .grid {
+            position: relative;
+            background: #111122;
+            padding: 12px;
+            border-radius: 16px;
+            border: 2px solid #2a2a44;
+            margin-bottom: 12px;
+            aspect-ratio: 1/1;
+            touch-action: none;
+        }
+        .cell {
+            position: absolute;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 28px;
+            background: #2d2d5a;
+            border: 2px solid #3a3a66;
+            cursor: pointer;
+            transition: left 0.15s ease, top 0.15s ease;
+            color: #fff;
+            width: calc(25% - 9px);
+            height: calc(25% - 9px);
+            top: 12px;
+            left: 12px;
+        }
+        .cell.empty {
+            background: transparent;
+            border-color: transparent;
+            cursor: default;
+        }
+        .cell:not(.empty):active {
+            transform: scale(0.94);
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 40px;
+            background: #252540;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            touch-action: manipulation;
+            flex: 1 1 auto;
+            min-width: 80px;
+        }
+        .btn:hover {
+            background: #33335a;
+        }
+        .btn:active {
+            transform: scale(0.94);
+        }
+        .btn-primary {
+            background: #f7971e;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #ffa82e;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 16px;
+            color: #888;
+            font-size: 13px;
+            border-top: 1px solid #2a2a44;
+            padding-top: 14px;
+        }
+        @media (max-width: 480px) {
+            .cell {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="title">🧩 数字拼图</div>
+            <div class="info">
+                <span>👣 <span id="moves">0</span></span>
+            </div>
+        </div>
+        <div class="grid" id="grid"></div>
+        <div class="controls">
+            <button class="btn btn-primary" id="btnReset">🔄 重开</button>
+        </div>
+        <div class="footer">⌨️ 方向键(↑↓←→)移动 · R 重新开始</div>
+    </div>
+    <script>
+        (function() {
+            const SIZE = 4;
+            let tiles = [];
+            let emptyIndex = 15;
+            let moves = 0;
+            let solved = false;
+            const gridEl = document.getElementById('grid');
+            const movesEl = document.getElementById('moves');
+
+            function initPuzzle() {
+                tiles = Array.from({ length: 16 }, (_, i) => i);
+                emptyIndex = 15;
+                moves = 0;
+                solved = false;
+                for (let i = 0; i < 200; i++) {
+                    const neighbors = getNeighbors(emptyIndex);
+                    const pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    swap(pick, emptyIndex);
+                    emptyIndex = pick;
+                }
+                if (isSolved()) {
+                    [tiles[14], tiles[15]] = [tiles[15], tiles[14]];
+                    emptyIndex = 14;
+                }
+                render();
+            }
+
+            function getNeighbors(idx) {
+                const r = Math.floor(idx / SIZE);
+                const c = idx % SIZE;
+                const result = [];
+                if (r > 0) result.push(idx - SIZE);
+                if (r < SIZE - 1) result.push(idx + SIZE);
+                if (c > 0) result.push(idx - 1);
+                if (c < SIZE - 1) result.push(idx + 1);
+                return result;
+            }
+
+            function swap(i, j) {
+                [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+            }
+
+            function isSolved() {
+                for (let i = 0; i < 15; i++) {
+                    if (tiles[i] !== i) return false;
+                }
+                return tiles[15] === 15;
+            }
+
+            function render() {
+                gridEl.innerHTML = '';
+                const pad = 12;
+                const gap = 6;
+                const size = gridEl.clientWidth || 400;
+                const cellSize = (size - pad * 2 - gap * 3) / 4;
+                for (let i = 0; i < 16; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (tiles[i] === 15) {
+                        cell.classList.add('empty');
+                        cell.textContent = '';
+                    } else {
+                        cell.textContent = tiles[i] + 1;
+                    }
+                    const r = Math.floor(i / SIZE);
+                    const c = i % SIZE;
+                    cell.style.left = (pad + c * (cellSize + gap)) + 'px';
+                    cell.style.top = (pad + r * (cellSize + gap)) + 'px';
+                    cell.style.width = cellSize + 'px';
+                    cell.style.height = cellSize + 'px';
+                    cell.dataset.index = i;
+                    gridEl.appendChild(cell);
+                }
+                movesEl.textContent = moves;
+                if (isSolved() && !solved) {
+                    solved = true;
+                    setTimeout(() => alert('🎉 拼图完成！'), 200);
+                }
+            }
+
+            function moveTile(index) {
+                if (solved) return;
+                const neighbors = getNeighbors(emptyIndex);
+                if (!neighbors.includes(index)) return;
+                swap(index, emptyIndex);
+                emptyIndex = index;
+                moves++;
+                render();
+            }
+
+            gridEl.addEventListener('click', e => {
+                const cell = e.target.closest('.cell');
+                if (!cell) return;
+                const index = parseInt(cell.dataset.index);
+                moveTile(index);
+            });
+            gridEl.addEventListener('touchstart', e => {
+                const cell = e.target.closest('.cell');
+                if (!cell) return;
+                const index = parseInt(cell.dataset.index);
+                moveTile(index);
+            }, { passive: true });
+
+            document.addEventListener('keydown', e => {
+                const map = {
+                    ArrowUp: emptyIndex + SIZE,
+                    ArrowDown: emptyIndex - SIZE,
+                    ArrowLeft: emptyIndex + 1,
+                    ArrowRight: emptyIndex - 1
+                };
+                const target = map[e.key];
+                if (target !== undefined && target >= 0 && target < 16) {
+                    const neighbors = getNeighbors(emptyIndex);
+                    if (neighbors.includes(target)) {
+                        e.preventDefault();
+                        moveTile(target);
+                    }
+                }
+                if (e.key === 'r' || e.key === 'R') { e.preventDefault();
+                    initPuzzle(); }
+            });
+
+            document.getElementById('btnReset').addEventListener('click', initPuzzle);
+            window.addEventListener('resize', render);
+            initPuzzle();
+        })();
+    </script>
+</body>
+</html>
