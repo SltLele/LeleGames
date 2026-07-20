@@ -117,13 +117,21 @@
             position: relative;
             z-index: 1;
         }
+        .error-message .highlight {
+            color: #7c5cfc;
+            font-weight: 500;
+        }
+        .error-message .highlight2 {
+            color: #fc5c7c;
+            font-weight: 500;
+        }
 
         .timer-section {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
             position: relative;
             z-index: 1;
         }
@@ -146,14 +154,14 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 16px;
+            gap: 12px;
             position: relative;
             z-index: 1;
         }
         .btn {
-            padding: 12px 32px;
+            padding: 12px 24px;
             border-radius: 60px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             text-decoration: none;
             transition: all 0.3s ease;
@@ -162,6 +170,7 @@
             background: rgba(255,255,255,0.04);
             color: #ccc;
             backdrop-filter: blur(4px);
+            min-width: 140px;
         }
         .btn-primary {
             background: linear-gradient(135deg, #7c5cfc, #fc5c7c);
@@ -173,6 +182,30 @@
             transform: translateY(-2px);
             box-shadow: 0 12px 36px rgba(124,92,252,0.4);
         }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(124,92,252,0.3);
+            color: #fff;
+        }
+        .btn .badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+            padding: 1px 10px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .btn-primary .badge {
+            background: rgba(255,255,255,0.2);
+        }
+        .btn .sub {
+            display: block;
+            font-size: 0.6rem;
+            font-weight: 300;
+            opacity: 0.6;
+            margin-top: 2px;
+        }
 
         .footer {
             margin-top: 30px;
@@ -181,12 +214,29 @@
             letter-spacing: 2px;
         }
 
+        .detected-badge {
+            display: inline-block;
+            background: rgba(124,92,252,0.12);
+            border: 1px solid rgba(124,92,252,0.2);
+            border-radius: 60px;
+            padding: 4px 18px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+        .detected-badge strong {
+            color: #7c5cfc;
+            font-weight: 500;
+        }
+
         @media (max-width: 600px) {
             .error-card { padding: 30px 20px; }
             .error-code { font-size: 4rem; }
             .error-title { font-size: 1.4rem; }
             .timer-number { font-size: 2rem; min-width: 40px; }
-            .btn { padding: 10px 24px; font-size: 0.9rem; }
+            .btn { padding: 10px 16px; font-size: 0.85rem; min-width: 120px; }
+            .btn .sub { font-size: 0.55rem; }
         }
     </style>
 </head>
@@ -200,6 +250,11 @@
             我们将自动带你返回游戏库首页。
         </div>
 
+        <!-- 当前检测到的版本 -->
+        <div class="detected-badge" id="detectedBadge">
+            🔍 检测到你正在使用 <strong id="detectedVersion">...</strong>
+        </div>
+
         <div class="timer-section">
             <span class="timer-label">倒计时</span>
             <span class="timer-number" id="countdown">10</span>
@@ -207,7 +262,14 @@
         </div>
 
         <div class="btn-group">
-            <a href="/LeleGames/" class="btn btn-primary" id="goHomeBtn">🎮 返回游戏库首页</a>
+            <a href="#" class="btn btn-primary" id="goProxyBtn">
+                🚀 加速版
+                <span class="sub">game.lelegame.dpdns.org</span>
+            </a>
+            <a href="#" class="btn btn-secondary" id="goOriginalBtn">
+                📦 原始版
+                <span class="sub">sltlele.github.io/LeleGames</span>
+            </a>
         </div>
     </div>
     <div class="footer">Lele游戏库 · 用代码编织快乐</div>
@@ -215,8 +277,42 @@
 
 <script>
     (function() {
+        // =============================================
+        // 配置：两个版本的游戏库首页地址
+        // =============================================
+        var PROXY_HOME   = 'https://game.lelegame.dpdns.org/';
+        var ORIGINAL_HOME = 'https://sltlele.github.io/LeleGames/';
+
+        // =============================================
+        // 自动检测当前访问的是哪个版本
+        // =============================================
+        var currentHost = window.location.hostname;
+
+        // 判断当前是否为代理版（包含 lelegame.dpdns.org）
+        var isProxy = currentHost.indexOf('lelegame.dpdns.org') !== -1;
+
+        // 默认跳转目标：根据当前域名自动选择
+        var defaultHome = isProxy ? PROXY_HOME : ORIGINAL_HOME;
+        var defaultLabel = isProxy ? '加速版' : '原始版';
+
+        // =============================================
+        // DOM 元素
+        // =============================================
         var countdownEl = document.getElementById('countdown');
-        var goHomeBtn = document.getElementById('goHomeBtn');
+        var goProxyBtn = document.getElementById('goProxyBtn');
+        var goOriginalBtn = document.getElementById('goOriginalBtn');
+        var detectedVersion = document.getElementById('detectedVersion');
+
+        // 显示检测结果
+        detectedVersion.textContent = defaultLabel;
+
+        // 设置按钮的 href
+        goProxyBtn.href = PROXY_HOME;
+        goOriginalBtn.href = ORIGINAL_HOME;
+
+        // =============================================
+        // 倒计时逻辑
+        // =============================================
         var seconds = 10;
         var timer = null;
 
@@ -225,7 +321,7 @@
         }
 
         function goHome() {
-            window.location.href = '/LeleGames/';
+            window.location.href = defaultHome;
         }
 
         function startCountdown() {
@@ -240,15 +336,40 @@
             }, 1000);
         }
 
-        goHomeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+        // 点击按钮时停止倒计时并跳转（按钮本身已有 href，但需要阻止默认行为以便清除定时器）
+        goProxyBtn.addEventListener('click', function(e) {
+            // 不阻止默认，让 href 正常工作，但先清除定时器
             if (timer) {
                 clearInterval(timer);
             }
-            goHome();
+            // 让浏览器正常跳转
         });
 
+        goOriginalBtn.addEventListener('click', function(e) {
+            if (timer) {
+                clearInterval(timer);
+            }
+        });
+
+        // 启动倒计时
         startCountdown();
+
+        // =============================================
+        // 键盘快捷键：1 跳转加速版，2 跳转原始版
+        // =============================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1') {
+                if (timer) clearInterval(timer);
+                window.location.href = PROXY_HOME;
+            } else if (e.key === '2') {
+                if (timer) clearInterval(timer);
+                window.location.href = ORIGINAL_HOME;
+            }
+        });
+
+        console.log('🔍 当前域名: ' + currentHost);
+        console.log('📍 检测到: ' + defaultLabel + '，倒计时结束后将自动跳转');
+        console.log('⌨️  按 1 键 → 加速版 | 按 2 键 → 原始版');
     })();
 </script>
 </body>
