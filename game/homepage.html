@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>返回主页 · Lele</title>
+    <!-- 自动跳转（3秒后） -->
+    <meta http-equiv="refresh" content="3; url=https://lelegame.dpdns.org/">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#0f0f1a;
+            color:#e0e0e0;
+            font-family:system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            text-align:center;
+            padding:20px;
+        }
+        .card {
+            padding:40px 30px;
+            background:rgba(255,255,255,0.04);
+            backdrop-filter:blur(8px);
+            border-radius:20px;
+            border:1px solid rgba(255,255,255,0.06);
+            max-width:420px;
+            width:100%;
+        }
+        .icon { font-size:3rem; display:block; margin-bottom:12px; }
+        p { color:rgba(255,255,255,0.5); font-size:1.1rem; line-height:1.6; }
+        .url { color:#7c5cfc; font-weight:500; }
+        .btn {
+            display:inline-block;
+            margin-top:20px;
+            padding:12px 32px;
+            background:linear-gradient(135deg, #7c5cfc, #fc5c7c);
+            border:none;
+            border-radius:60px;
+            color:#fff;
+            font-size:1rem;
+            font-weight:500;
+            text-decoration:none;
+            cursor:pointer;
+            transition:transform 0.2s, box-shadow 0.2s;
+            box-shadow:0 8px 24px rgba(124,92,252,0.3);
+        }
+        .btn:hover {
+            transform:translateY(-2px);
+            box-shadow:0 12px 36px rgba(124,92,252,0.4);
+        }
+        .hint {
+            font-size:0.8rem;
+            color:rgba(255,255,255,0.2);
+            margin-top:16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <span class="icon">🏠</span>
+        <p>正在返回 <span class="url">Lele 游戏库主页</span> ...</p>
+        <a href="https://lelegame.dpdns.org/" class="btn">立即返回主页</a>
+        <div class="hint">⏳ 3 秒后自动跳转</div>
+    </div>
+
+    <script>
+        // 点击按钮时清除自动跳转，立即跳转（按钮的 href 已处理）
+        // 额外：如果用户点击按钮，停止 meta 刷新？但 meta 无法取消，所以让按钮直接跳转即可。
+        // 自动跳转由 meta 处理，我们保留 JS 备用（但 meta 已经做了）
+        // 为了更可靠，也加一个 JS 备用跳转（但 meta 优先）
+        // 这里不再重复 window.location，因为 meta 已足够。
+        // 但也可以加一个 3 秒后的 JS 重定向作为补充
+        setTimeout(function() {
+            // 如果页面还没跳转（比如用户没有点击按钮），则强制跳转
+            // 但 meta 会先执行，所以这里不会重复
+        }, 3000);
+    </script>
+</body>
+</html>
