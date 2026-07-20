@@ -24,7 +24,7 @@ var ANNOUNCEMENT_DATA = [
     },
     {
         id: 2,
-        title: '更新通知。',
+        title: '更新通知',
         content: '我们更新了很多很多很多东西。',
         time: '2026-07-10'
     },
