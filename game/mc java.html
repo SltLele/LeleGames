@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳转中...</title>
+    <!-- 方式一：meta 刷新（备用） -->
+    <meta http-equiv="refresh" content="0; url=http://yile.dpdns.org">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#0f0f1a;
+            color:#e0e0e0;
+            font-family:system-ui, sans-serif;
+            text-align:center;
+            padding:20px;
+        }
+        .card {
+            padding:40px 30px;
+            background:rgba(255,255,255,0.04);
+            border-radius:20px;
+            border:1px solid rgba(255,255,255,0.06);
+        }
+        .icon { font-size:3rem; display:block; margin-bottom:12px; }
+        p { color:rgba(255,255,255,0.5); font-size:1.1rem; }
+        .url { color:#7c5cfc; font-weight:500; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <span class="icon">🚀</span>
+        <p>正在跳转到 <span class="url">yile.dpdns.org</span> ...</p>
+    </div>
+
+    <script>
+        // 方式二：JS 重定向（立即执行）
+        window.location.replace("http://yile.dpdns.org");
+    </script>
+</body>
+</html>
