@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 · 游戏库页面未找到</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 40%, #16213e 70%, #0f0f1a 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            z-index: -1;
+            background: radial-gradient(ellipse at 30% 40%, rgba(124,92,252,0.08) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 60%, rgba(252,92,124,0.06) 0%, transparent 50%);
+            animation: glowMove 20s infinite alternate;
+        }
+        @keyframes glowMove {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(5%, 5%) scale(1.2); }
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 16px;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .error-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            padding: 50px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .error-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(124,92,252,0.05), transparent 60%);
+            animation: introGlow 8s infinite alternate;
+        }
+        @keyframes introGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(5%, 5%) scale(1.2); }
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fc5c7c, #f5a623);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 4px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .error-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        .error-message {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.6);
+            font-weight: 300;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        .timer-number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #7c5cfc;
+            min-width: 60px;
+            background: rgba(124,92,252,0.1);
+            border-radius: 12px;
+            padding: 0 10px;
+        }
+        .timer-label {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.4);
+            font-weight: 300;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        .btn {
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: #ccc;
+            backdrop-filter: blur(4px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #7c5cfc, #fc5c7c);
+            border: none;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(124,92,252,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(124,92,252,0.4);
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: rgba(255,255,255,0.12);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .error-card { padding: 30px 20px; }
+            .error-code { font-size: 4rem; }
+            .error-title { font-size: 1.4rem; }
+            .timer-number { font-size: 2rem; min-width: 40px; }
+            .btn { padding: 10px 24px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="error-card">
+        <div class="error-code">404</div>
+        <div class="error-title">游戏库页面未找到</div>
+        <div class="error-message">
+            你访问的游戏页面可能已被移除或链接有误。<br>
+            我们将自动带你返回游戏库首页。
+        </div>
+
+        <div class="timer-section">
+            <span class="timer-label">倒计时</span>
+            <span class="timer-number" id="countdown">10</span>
+            <span class="timer-label">秒</span>
+        </div>
+
+        <div class="btn-group">
+            <a href="/LeleGames/" class="btn btn-primary" id="goHomeBtn">🎮 返回游戏库首页</a>
+        </div>
+    </div>
+    <div class="footer">Lele游戏库 · 用代码编织快乐</div>
+</div>
+
+<script>
+    (function() {
+        var countdownEl = document.getElementById('countdown');
+        var goHomeBtn = document.getElementById('goHomeBtn');
+        var seconds = 10;
+        var timer = null;
+
+        function updateDisplay() {
+            countdownEl.textContent = seconds;
+        }
+
+        function goHome() {
+            window.location.href = '/LeleGames/';
+        }
+
+        function startCountdown() {
+            timer = setInterval(function() {
+                seconds -= 1;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    goHome();
+                } else {
+                    updateDisplay();
+                }
+            }, 1000);
+        }
+
+        goHomeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (timer) {
+                clearInterval(timer);
+            }
+            goHome();
+        });
+
+        startCountdown();
+    })();
+</script>
+</body>
+</html>
