@@ -6,9 +6,9 @@
 // 1. 维护开始时间（格式：'YYYY-MM-DD HH:MM:SS'）
 //    例如：'2026-07-20 17:40:00'
 //    留空 '' 表示未设置
-var MAINTENANCE_START = '2026-07-20 17:40:00';
+var MAINTENANCE_START = '2026-07-23 20:58:00';
 
 // 2. 维护结束时间（格式：'YYYY-MM-DD HH:MM:SS'）
 //    例如：'2026-07-20 17:55:00'
 //    留空 '' 表示未设置
-var MAINTENANCE_END = '2026-07-20 17:55:00';
+var MAINTENANCE_END = '2026-07-23 21:20:00';

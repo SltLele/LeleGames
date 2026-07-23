@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳转中...</title>
+    <!-- meta 刷新备用（自动从变量读取） -->
+    <meta id="metaRefresh" http-equiv="refresh" content="0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            padding: 50px 40px 40px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(4px);
+            max-width: 480px;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: scale(1.01);
+        }
+        .icon {
+            font-size: 3.6rem;
+            display: block;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 0 20px rgba(124, 92, 252, 0.25));
+        }
+        h2 {
+            font-weight: 500;
+            font-size: 1.4rem;
+            color: #f0f0f0;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+        p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        .url {
+            color: #7c5cfc;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        .hint {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.25);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <span class="icon">🚀</span>
+        <h2 id="displayTitle">正在跳转</h2>
+        <p>前往 <span class="url" id="displayUrl">目标地址</span> ...</p>
+        <div class="hint" id="hintText">⏳ 若未自动跳转，请检查网络。请放心，跳转的目标为本站页面，绝对安全。</div>
+    </div>
+
+    <script>
+        // ================================================================
+        // ★★★ 配置变量区（修改这里即可） ★★★
+        // ================================================================
+
+        // 1. 给用户看的名称（显示在卡片上）
+        const DISPLAY_NAME = "MCJS 1.8.8 服务器";
+
+        // 2. 实际跳转的完整 URL（必须带协议，如 https://）
+        const REDIRECT_URL = "https://your-domain.com/";
+
+        // 3. （可选）是否显示跳转目标 URL
+        const SHOW_URL = true;   // true 显示，false 隐藏
+
+        // ================================================================
+        // 以下为自动逻辑，无需修改
+        // ================================================================
+
+        // 更新页面显示
+        document.getElementById('displayTitle').textContent = DISPLAY_NAME;
+        if (SHOW_URL) {
+            document.getElementById('displayUrl').textContent = REDIRECT_URL;
+        } else {
+            document.getElementById('displayUrl').textContent = '目标';
+        }
+
+        // 更新 meta refresh 的跳转地址
+        const metaTag = document.getElementById('metaRefresh');
+        metaTag.content = '0; url=' + REDIRECT_URL;
+
+        // JS 重定向（立即执行，优先级高于 meta）
+        window.location.replace(REDIRECT_URL);
+    </script>
+
+</body>
+</html>
